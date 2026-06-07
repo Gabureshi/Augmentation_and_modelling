@@ -1,0 +1,12 @@
+tensorflow==2.19
+tensorflowjs
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+opencv-python
+scikit-image
+Pillow
+tqdm
+kaggle
