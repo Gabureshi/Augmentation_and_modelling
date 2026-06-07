@@ -26,18 +26,30 @@ jobs:
         with:
           python-version: "3.12.7"
  
-      # Install required dependencies
-      - name: Install dependencies
+      # Install requirement dependencies
+      - name: Install Requirement Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # Run notebook
-      - name: Run notebook
+      # Install Jupyter execution tools and project dependencies
+      - name: Install Jupyter Dependencies
         run: |
-          pip install nbconvert
+          python -m pip install --upgrade pip
+          pip install jupyter nbconvert ipykernel
+
+      # Execute the notebook and save the populated output
+      - name: Execute Notebook
+        run: |
           jupyter nbconvert --to notebook --execute --inplace notebook.ipynb
-      
+  
+      # Save the executed notebook as a downloadable build artifact
+      - name: Upload Executed Notebook
+        uses: actions/upload-artifact@v4
+        with:
+          name: executed-notebook
+          path: notebook.ipynb  
+        
       # Commit and push all newly created or updated files
       - name: Commit and Push Changes
         run: |
