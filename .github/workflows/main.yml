@@ -1,4 +1,4 @@
-name: Eksperimen SML RayNelsonChan
+name: Augmentation and modelling
  
 on:
   push:
@@ -13,54 +13,37 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write
+      contents: read
     
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
  
-      # Setup Python 3.12.7
-      - name: Set up Python 3.12.7
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.12.7"
+          python-version: "3.13"
+          cache: 'pip'
  
-      # Install requirement dependencies
-      - name: Install Requirement Dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-      
-      # Install Jupyter execution tools and project dependencies
-      - name: Install Jupyter Dependencies
-        run: |
-          python -m pip install --upgrade pip
           pip install jupyter nbconvert ipykernel
-
-      # Execute the notebook and save the populated output
+      
       - name: Execute Notebook
         run: |
           jupyter nbconvert --to notebook --execute --inplace notebook.ipynb
+        timeout-minutes: 180
   
-      # Save the executed notebook as a downloadable build artifact
-      - name: Upload Executed Notebook
-        uses: actions/upload-artifact@v4
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          name: executed-notebook
-          path: notebook.ipynb  
-        
-      # Commit and push all newly created or updated files
-      - name: Commit and Push Changes
-        run: |
-          git config --local user.email "github-actions[bot]@://github.com"
-          git config --local user.name "github-actions[bot]"
-          git add .
-          
-          # Only commit if there are actual changes to prevent workflow errors
-          if ! git diff --cached --quiet; then
-            git commit -m "Automated: Run experiment notebook and update outputs"
-            git push
-          else
-            echo "No changes detected. Skipping commit."
-          fi  
+          name: experiment-results
+          path: |
+            notebook.ipynb
+            chest_xray/
+            saved_model/
+          retention-days: 90
+          if-no-files-found: warn
